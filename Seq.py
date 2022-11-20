@@ -26,18 +26,11 @@ inter_end = inter_start+2688
 time=inter_end
 min_summ = []
 
-total_dose = 160 #160. Total dose and num doses doubled for combo bc giving for twice the length.
-num_doses = 16 #16
+total_dose = 160
+num_doses = 16 
 txdose = 1
 
-#arr = [0.43865851701724917,0.4315968168640311,0.4279078962932176,0.42565877251212814,0.42417010454285514,0.42305997772104065,0.42222228394801475,0.4215813398682476,0.42105995742555813]
-#times = np.linspace(1,5,9)
-
-IC = [.6,1,1]
-
-#Measure total drug (1000) and look at hyper/hypo fractionation, keeping dose constant
-#Tx interval vs dose given
-#5000 time steps, 1 dose, 10 doses
+IC = [.6,1]
 
 def grow(v):
     return r0*(v/v0)**betar
@@ -72,67 +65,22 @@ def ft(t):
             return 0
     else:
         return 0
-    
-
-def fcrand(t):
-    if t>=chemo_start and t<=chemo_end:
-        txtime = 160/num_doses/1
-        period = (chemo_end-chemo_start)/num_doses
-        if (t-chemo_start)%period < txtime:
-            return 1
-        else:
-            return 0
-    else:
-        return 0
-    
-def ftrand(t):
-    if t>=inter_start and t<=inter_end:
-        txtime = 160/num_doses/1
-        period = (inter_end-inter_start)/num_doses
-        if (t-inter_start)%period < txtime:
-            return 1
-        else:
-            return 0
-    else:
-        return 0
 
 def evoLV(X, t):    
     
     C = X[0]
     v = X[1]
-    v2 = X[2]
     
-    if t>1300 and t<1400: #dummy again
-        v2+=1
-        
     def G(v):
         return grow(v)*(1-C/K)-death(v)-fc(t)*chemo(v)-ft(t)*target(v)
     
     dCdt = C*G(v)
         
     dvdt = k*((betar*r0/v0*(v/v0)**(betar-1))*(1-C/K)-grow(v)*C/K*(-betaa*(amax-1)/amax)-(betadelta*death(v))-fc(t)*(-betazeta*chemo(v))-ft(t)*(betazeta2*zeta02/v0*(v/v0)**(betazeta2-1)))
-    
-    #dvranddt = .5*((betar*r0/v0*(v/v0)**(betar-1))*(1-C/K)-grow(v)*C/K*(-betaa*(amax-1)/amax)-(betadelta*death(v))-fcrand(t)*(-betazeta*chemo(v))-ftrand(t)*(betazeta2*zeta02/v0*(v/v0)**(betazeta2-1))) #dummy function - txdose
-    
-    dvranddt = .1*((betar*r0/v0*(v2/v0)**(betar-1))*(1-C/K)-grow(v2)*C/K*(-1*(amax-1)/amax)-(betadelta*death(v2))-fc(t)*(-betazeta*chemo(v2))-ft(t)*(betazeta2*zeta02/v0*(v2/v0)**(betazeta2-1))) #dummy function - betaa
-    
-    #dvranddt = .3*((betar*r0/v0*(v2/v0)**(betar-1))*(1-C/K)-grow(v2)*C/K*(-1*(amax-1)/amax)-(betadelta*death(v2))-fc(t)*(-betazeta*chemo(v2))-ft(t)*(betazeta2*zeta02/v0*(v2/v0)**(betazeta2-1))) #dummy function - betar. For k just change evolv to .03
-    
-    #dvranddt = 1*((betar*r0/v0*(v2/v0)**(betar-1))*(1-C/K)-grow(v2)*C/K*(-1*(amax-1)/amax)-(betadelta*death(v2))-fc(t)*(-betazeta*chemo(v2))-ft(t)*(betazeta2*zeta02/v0*(v2/v0)**(betazeta2-1))) #dummy function - zeta0,2
-
         
-    dxvdt = np.array([dCdt, dvdt,dvranddt])
+    dxvdt = np.array([dCdt, dvdt])
 
     return dxvdt
-
-# C = 0.2
-# v = 1.3
-
-# print(grow(v)*(1-C/K)-death(v)-target(v))
-# print((betar*r0/v0*(v/v0)**(betar-1))*(1-C/K)-grow(v)*C/K*(-betaa*(amax-1)/amax)-(betadelta*death(v))-1*(betazeta2*zeta02/v0*(v/v0)**(betazeta2-1)))
-
-# print(grow(v)*(1-C/K)-death(v)-chemo(v))
-# print((betar*r0/v0*(v/v0)**(betar-1))*(1-C/K)-grow(v)*C/K*(-betaa*(amax-1)/amax)-(betadelta*death(v))-(-betazeta*chemo(v)))
 
 intxv = np.array(IC)
 time_sp = np.linspace(0,time,num=time*100-1)
@@ -157,21 +105,4 @@ plt.xlabel('Weeks')
 plt.xticks([0,1344,4032,6720],[0,8,24,40])
 plt.xlim(0,inter_end)
 plt.show()
-
 print(min(pop[:,0]))
-
-# for i in np.arange(10,300,50):
-#     total_dose = i
-#     pop = odeint(evoLV, intxv,time_sp,atol = 1e-12, rtol=1e-12)
-#     a = min(pop[:,0])
-#     if a < 0:
-#         a = 0
-#     min_summ.append([i,a])
-
-# min_summ = np.array(min_summ)
-# plt.figure()
-# #plt.xticks(np.arange(0,20, 2))
-# plt.title('Effect of Dose per Tx on Sequential Therapy Protocol')
-# plt.ylabel('Nadir of Cancer Population')
-# plt.xlabel('Dose per Tx')
-# plt.plot(min_summ[:,0],min_summ[:,1],lw=3,color='k')
