@@ -29,7 +29,7 @@ txdose = 1
 
 IC = [0.01,1]
 
-length = 168 #168 #play with this: how often do you get check-ins
+length = 168
 vbound = 1.2 #.8,1.2, 1.6; 1.9
 tmbound = 0.7 #.3, .5, 7
 curr = 0
@@ -141,20 +141,3 @@ plt.xlim(0,time)
 plt.xticks([0,1344,4032,6720],[0,8,24,40])
 plt.xlabel('Weeks')
 plt.show()
-
-#Tmbound, vbound, Length, Tx Dose
-
-'''for i in np.arange(.5,2,.05):
-    vbound = i
-    pop = odeint(evoLV, intxv,time_sp,atol = 1e-12, rtol=1e-12)
-    a = min(pop[:,0])
-    if a < 0:
-        a = 0
-    min_summ.append([i,a])
-    
-min_summ = np.array(min_summ)
-plt.figure()
-plt.title('Effect of Threshold on Uninformed Therapy')
-plt.ylabel('Nadir of Cancer Population')
-plt.xlabel('Tx Switching Threshold')
-plt.plot(min_summ[:,0],min_summ[:,1],lw=3,color='k')'''
